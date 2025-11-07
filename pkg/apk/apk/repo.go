@@ -528,20 +528,11 @@ func (p *PkgResolver) GetPackagesWithDependencies(ctx context.Context, packages 
 
 	// now get the dependencies for each package
 	for _, pkgName := range packages {
-		pkg, deps, confs, err := p.GetPackageWithDependencies(ctx, pkgName, dependenciesMap, dq)
+		pkg, _, confs, err := p.GetPackageWithDependencies(ctx, pkgName, dependenciesMap, dq)
 		if err != nil {
 			return toInstall, nil, &ConstraintError{pkgName, err}
 		}
 
-		for _, dep := range deps {
-			if _, ok := installTracked[dep.Name]; !ok {
-				toInstall = append(toInstall, dep)
-				installTracked[dep.Name] = dep
-			}
-			if _, ok := dependenciesMap[dep.Name]; !ok {
-				dependenciesMap[dep.Name] = dep
-			}
-		}
 		if _, ok := installTracked[pkg.Name]; !ok {
 			toInstall = append(toInstall, pkg)
 			installTracked[pkg.Name] = pkg
