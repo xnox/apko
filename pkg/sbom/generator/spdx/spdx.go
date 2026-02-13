@@ -104,7 +104,7 @@ func (sx *SPDX) Generate(ctx context.Context, opts *options.Options, path string
 				fmt.Sprintf("Tool: apko (%s)", version.GetVersionInfo().GitVersion),
 				"Organization: Chainguard, Inc",
 			},
-			LicenseListVersion: "3.16",
+			LicenseListVersion: "3.27",
 		},
 		DataLicense:    "CC0-1.0",
 		Namespace:      "https://spdx.org/spdxdocs/apko/",
@@ -151,7 +151,7 @@ func (sx *SPDX) Generate(ctx context.Context, opts *options.Options, path string
 
 	for _, pkg := range opts.Packages {
 		// Check to see if the apk contains an sbom describing itself
-		if err := sx.ProcessInternalApkSBOM(opts, doc, pkg); err != nil {
+		if err := sx.ProcessInternalApkSBOM(ctx, opts, doc, pkg); err != nil {
 			return fmt.Errorf("parsing internal apk SBOM: %w", err)
 		}
 	}
@@ -201,7 +201,7 @@ func locateApkSBOM(fsys apkfs.ReaderFS, ipkg *apk.InstalledPackage) (string, err
 	return "", nil
 }
 
-func (sx *SPDX) ProcessInternalApkSBOM(opts *options.Options, doc *Document, ipkg *apk.InstalledPackage) error {
+func (sx *SPDX) ProcessInternalApkSBOM(ctx context.Context, opts *options.Options, doc *Document, ipkg *apk.InstalledPackage) error {
 	// Check if apk installed an SBOM
 	path, err := locateApkSBOM(opts.FS, ipkg)
 	if err != nil {
@@ -260,9 +260,7 @@ func (sx *SPDX) ProcessInternalApkSBOM(opts *options.Options, doc *Document, ipk
 		return fmt.Errorf("copying element: %w", err)
 	}
 
-	if err := mergeLicensingInfos(apkSBOMDoc, doc); err != nil {
-		return fmt.Errorf("merging LicensingInfos: %w", err)
-	}
+	mergeLicensingInfos(ctx, apkSBOMDoc, doc)
 
 	// Add CONTAINS relationships from the document root package to all top-level elements from the internal SBOM.
 	// This ensures they are reachable from the document root for tools that traverse the SBOM graph.
@@ -328,14 +326,14 @@ func copySBOMElements(sourceDoc, targetDoc *Document, todo map[string]struct{}) 
 	return nil
 }
 
-func mergeLicensingInfos(sourceDoc, targetDoc *Document) error {
+func mergeLicensingInfos(ctx context.Context, sourceDoc, targetDoc *Document) {
 	var found bool
 	for _, sourceinfo := range sourceDoc.LicensingInfos {
 		found = false
 		for _, targetinfo := range targetDoc.LicensingInfos {
 			if targetinfo.LicenseID == sourceinfo.LicenseID {
 				if targetinfo.ExtractedText != sourceinfo.ExtractedText {
-					return fmt.Errorf("source & target LicenseID %s differ in Text; perhaps multiple versions of the package have different contents of files provided in license-path", targetinfo.LicenseID)
+					clog.FromContext(ctx).Warnf("source & target LicenseID %s differ in Text; please either update the package's license-path or use the correct LicenseID", targetinfo.LicenseID)
 				}
 				found = true
 				break
@@ -345,7 +343,6 @@ func mergeLicensingInfos(sourceDoc, targetDoc *Document) error {
 			targetDoc.LicensingInfos = append(targetDoc.LicensingInfos, sourceinfo)
 		}
 	}
-	return nil
 }
 
 // ParseInternalSBOM opens an SBOM inside apks and
@@ -410,7 +407,7 @@ func supplier(opts *options.Options) string {
 func (sx *SPDX) imagePackage(opts *options.Options) (p *Package) {
 	return &Package{
 		ID: stringToIdentifier(fmt.Sprintf(
-			"SPDXRef-Package-%s", opts.ImageInfo.ImageDigest,
+			"SPDXRef-Package-Image-%s", opts.ImageInfo.ImageDigest,
 		)),
 		Name:             opts.ImageInfo.ImageDigest,
 		Version:          opts.ImageInfo.ImageDigest,
@@ -444,12 +441,13 @@ func (sx *SPDX) layerPackage(opts *options.Options, layer v1.Descriptor) *Packag
 	mainPkgID := stringToIdentifier(layerPackageName)
 
 	return &Package{
-		ID:               fmt.Sprintf("SPDXRef-Package-%s", mainPkgID),
+		ID:               fmt.Sprintf("SPDXRef-Package-ImageLayer-%s", mainPkgID),
 		Name:             layerPackageName,
 		Version:          opts.OS.Version,
 		FilesAnalyzed:    false,
 		Description:      "apko operating system layer",
 		DownloadLocation: NOASSERTION,
+		PrimaryPurpose:   "CONTAINER",
 		Originator:       "",
 		Supplier:         supplier(opts),
 		Checksums:        []Checksum{},
@@ -569,7 +567,7 @@ func (sx *SPDX) GenerateIndex(opts *options.Options, path string) error {
 				fmt.Sprintf("Tool: apko (%s)", version.GetVersionInfo().GitVersion),
 				"Organization: Chainguard, Inc",
 			},
-			LicenseListVersion: "3.16",
+			LicenseListVersion: "3.27",
 		},
 		DataLicense:   "CC0-1.0",
 		Namespace:     "https://spdx.org/spdxdocs/apko/",

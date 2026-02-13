@@ -24,7 +24,7 @@ jobs:
         arch: [x86_64, aarch64]
 
     steps:
-      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -68,7 +68,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -79,7 +79,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           check-latest: true
-      - uses: imjasonh/setup-crane@31b88efe9de28ae0ffa220711af4b60be9435f6e # v0.4
+      - uses: imjasonh/setup-crane@6da1ae018866400525525ce74ff892880c099987 # v0.5
       - run: |
           make apko
           for cfg in $(find ./examples/ -name '*.yaml'); do
@@ -102,7 +102,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -113,7 +113,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           check-latest: true
-      - uses: chainguard-dev/actions/setup-registry@18e5e3427cf9d6bcfbefe60dca48e40292f000c5 # v1.5.13
+      - uses: chainguard-dev/actions/setup-registry@081e79ee578199ef583d4ca74edc376b50b9409c # v1.6.0
         with:
           port: 5000
 
@@ -144,7 +144,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -155,7 +155,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           check-latest: true
-      - uses: chainguard-dev/actions/setup-registry@18e5e3427cf9d6bcfbefe60dca48e40292f000c5 # v1.5.13
+      - uses: chainguard-dev/actions/setup-registry@081e79ee578199ef583d4ca74edc376b50b9409c # v1.6.0
         with:
           port: 5000
 
@@ -186,7 +186,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -197,8 +197,8 @@ jobs:
         with:
           go-version-file: 'go.mod'
           check-latest: true
-      - uses: imjasonh/setup-crane@31b88efe9de28ae0ffa220711af4b60be9435f6e # v0.4
-      - uses: chainguard-dev/actions/setup-registry@18e5e3427cf9d6bcfbefe60dca48e40292f000c5 # v1.5.13
+      - uses: imjasonh/setup-crane@6da1ae018866400525525ce74ff892880c099987 # v0.5
+      - uses: chainguard-dev/actions/setup-registry@081e79ee578199ef583d4ca74edc376b50b9409c # v1.6.0
         with:
           port: 5000
       - run: |
@@ -224,7 +224,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+      - uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
